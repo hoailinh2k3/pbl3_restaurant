@@ -6,6 +6,7 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:pbl3_restaurant/features/viewmodel/home_page_view_model.dart';
 import 'package:pbl3_restaurant/features/viewmodel/main_page_view_model.dart';
 import 'package:pbl3_restaurant/features/viewmodel/menu_page_view_model.dart';
+import 'package:pbl3_restaurant/features/viewmodel/setting_page_viewmodel.dart';
 import 'package:pbl3_restaurant/features/viewmodel/table_page_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TablePageViewModel()),
         ChangeNotifierProvider(create: (_) => MenuPageViewModel()),
         ChangeNotifierProvider(create: (_) => HomePageViewModel()),
+        ChangeNotifierProvider(create: (_) => SettingPageViewmodel()),
       ],
       child: MaterialApp(
         title: 'PBL3 Restaurant',
