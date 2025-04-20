@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pbl3_restaurant/core/constants/text_styles.dart';
+import 'package:provider/provider.dart';
+
+import '../features/viewmodel/user_view_model.dart';
 
 class HelloUser extends StatelessWidget {
-  final String user;
-
-  HelloUser({required this.user});
+  const HelloUser({super.key});
 
   @override
   Widget build(BuildContext context) {
+    var vm = context.watch<UserViewModel>();
     String formattedDate =
         DateFormat('EEEE, dd MMM yyyy').format(DateTime.now());
 
@@ -22,7 +24,7 @@ class HelloUser extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Xin chào, $user',
+                'Xin chào, ${vm.user?.fullName}',
                 style: TextStyles.title.bold,
               ),
               Text(

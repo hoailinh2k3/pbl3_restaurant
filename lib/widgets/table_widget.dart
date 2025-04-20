@@ -14,18 +14,20 @@ class TableWidget extends StatelessWidget {
       children: [
         MaterialButton(
           onPressed: onTap,
-          color: table.status ? ColorStyles.accent : ColorStyles.warning,
+          color: table.statusName == "Đang sử dụng"
+              ? ColorStyles.accent
+              : ColorStyles.warning,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
           child: Center(
             child: Text(
-              'Bàn ${table.number}',
+              'Bàn ${table.tableNumber}',
               style: TextStyles.title.bold.getColor(Colors.white),
             ),
           ),
         ),
-        if (!table.status)
+        if (!(table.statusName == "Đang sử dụng"))
           Positioned(
             top: 0,
             right: 0,

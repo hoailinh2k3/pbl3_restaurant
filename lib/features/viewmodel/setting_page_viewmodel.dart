@@ -6,6 +6,7 @@ class SettingPageViewmodel extends ChangeNotifier {
     'Quản lý thực đơn',
     "Quản lý bàn ăn",
     "Quản lý nhân viên",
+    "Quản lý chi nhánh",
   ];
 
   List<String> get settings => _settings;

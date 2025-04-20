@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pbl3_restaurant/features/view/home_page.dart';
-import 'package:pbl3_restaurant/features/view/setting_page.dart';
-import 'package:pbl3_restaurant/features/view/statistic_page.dart';
+import 'package:pbl3_restaurant/features/view/home/home_page.dart';
+import 'package:pbl3_restaurant/features/view/setting/setting_page.dart';
+import 'package:pbl3_restaurant/features/view/statistic/statistic_page.dart';
 
 class MainPageViewModel extends ChangeNotifier {
   int _currentIndex = 0;

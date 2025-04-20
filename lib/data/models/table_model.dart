@@ -1,13 +1,31 @@
 class TableModel {
-  final int id;
-  final int number;
-  final int capacity;
-  final bool status;
+  int tableId;
+  int tableNumber;
+  int capacity;
+  String statusName;
+  int branchId;
 
   TableModel({
-    required this.id,
-    required this.number,
+    required this.tableId,
+    required this.tableNumber,
     required this.capacity,
-    required this.status,
+    required this.statusName,
+    required this.branchId,
   });
+
+  factory TableModel.fromJson(Map<String, dynamic> json) => TableModel(
+        tableId: json["tableId"],
+        tableNumber: json["tableNumber"],
+        capacity: json["capacity"],
+        statusName: json["statusName"],
+        branchId: json["branchId"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "tableId": tableId,
+        "tableNumber": tableNumber,
+        "capacity": capacity,
+        "statusName": statusName,
+        "branchId": branchId,
+      };
 }

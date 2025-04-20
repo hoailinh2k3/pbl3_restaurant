@@ -4,7 +4,10 @@ import 'package:pbl3_restaurant/core/constants/text_styles.dart';
 import 'package:pbl3_restaurant/core/helpers/asset_helper.dart';
 import 'package:pbl3_restaurant/core/helpers/image_helper.dart';
 import 'package:pbl3_restaurant/features/viewmodel/main_page_view_model.dart';
+import 'package:pbl3_restaurant/features/viewmodel/menu_page_view_model.dart';
 import 'package:provider/provider.dart';
+
+import '../../widgets/logout.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -19,13 +22,17 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<MainPageViewModel>(context);
+    final menuPagevm = Provider.of<MenuPageViewModel>(context);
+    var size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: ColorStyles.secondary,
+      backgroundColor: (!menuPagevm.isPaid)
+          ? ColorStyles.secondary
+          : Colors.black.withOpacity(0.5),
       body: Row(
         children: [
-          Expanded(
-            flex: 1,
+          SizedBox(
+            width: size.width * 0.15,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -45,7 +52,7 @@ class _MainPageState extends State<MainPage> {
                         child: ImageHelper.loadFromAsset(AssetHelper.logo),
                       ),
                     ),
-                    railNavigator(viewModel),
+                    railNavigator(),
                   ],
                 ),
                 Expanded(
@@ -69,13 +76,7 @@ class _MainPageState extends State<MainPage> {
                         color: ColorStyles.primary,
                         width: double.infinity,
                         padding: const EdgeInsets.all(10.0),
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.logout,
-                            color: ColorStyles.error,
-                          ),
-                        ),
+                        child: Logout(),
                       ),
                     ],
                   ),
@@ -84,7 +85,6 @@ class _MainPageState extends State<MainPage> {
             ),
           ),
           Expanded(
-            flex: 7,
             child: viewModel.pages[viewModel.currentIndex],
           ),
         ],
@@ -92,7 +92,9 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  Widget railNavigator(MainPageViewModel viewModel) {
+  Widget railNavigator() {
+    final viewModel = Provider.of<MainPageViewModel>(context);
+    final menuPagevm = Provider.of<MenuPageViewModel>(context);
     final width = MediaQuery.of(context).size.width;
     return ListView.builder(
       itemCount: viewModel.railItems.length,
@@ -102,7 +104,9 @@ class _MainPageState extends State<MainPage> {
           padding: const EdgeInsets.all(10.0),
           decoration: BoxDecoration(
             color: viewModel.currentIndex == index
-                ? ColorStyles.secondary
+                ? ((!menuPagevm.isPaid)
+                    ? ColorStyles.secondary
+                    : Colors.black.withOpacity(0.5))
                 : ColorStyles.primary,
             borderRadius:
                 viewModel.previousIndex == index || viewModel.postIndex == index
@@ -118,7 +122,7 @@ class _MainPageState extends State<MainPage> {
           ),
           child: Container(
             padding: viewModel.currentIndex == index
-                ? const EdgeInsets.all(10)
+                ? const EdgeInsets.symmetric(vertical: 10)
                 : null,
             decoration: viewModel.currentIndex == index
                 ? BoxDecoration(
