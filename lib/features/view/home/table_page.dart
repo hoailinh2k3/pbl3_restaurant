@@ -38,6 +38,9 @@ class TablePage extends StatelessWidget {
                         table: table,
                         onTap: () {
                           orderViewModel.tableNumber = table.tableNumber;
+                          orderViewModel.tableId = table.tableId;
+                          orderViewModel.branchId = table.branchId;
+                          orderViewModel.fetchBill();
                           Navigator.pushNamed(
                             context,
                             '/menu_page',

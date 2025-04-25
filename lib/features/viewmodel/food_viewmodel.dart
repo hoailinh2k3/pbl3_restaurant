@@ -7,9 +7,6 @@ import 'package:pbl3_restaurant/data/repositories/food_service.dart';
 class FoodViewModel extends ChangeNotifier {
   FoodViewModel() {
     fetchAllFoods();
-    _timer = Timer.periodic(Duration(seconds: 5), (_) {
-      fetchAllFoods();
-    });
   }
   final FoodService _service = FoodService();
 
@@ -19,7 +16,6 @@ class FoodViewModel extends ChangeNotifier {
   // Trạng thái tải dữ liệu
   bool isLoading = false;
   String? errorMessage;
-  Timer? _timer;
 
   // Hàm gọi API để lấy danh sách Food
   Future<void> fetchAllFoods() async {
@@ -38,9 +34,52 @@ class FoodViewModel extends ChangeNotifier {
     }
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
+  Future<void> addFood(FoodModel food) async {
+    foods.add(food);
+    notifyListeners();
+    try {
+      await _service.addFood(food);
+      foods.add(food);
+    } catch (e) {
+      errorMessage = "Không thể thêm món ăn: $e";
+    } finally {
+      await fetchAllFoods();
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateFood(FoodModel food) async {
+    int index = foods.indexWhere((f) => f.foodId == food.foodId);
+    if (index != -1) {
+      foods[index] = food;
+      notifyListeners();
+    }
+    try {
+      await _service.updateFood(food);
+      if (index != -1) {
+        foods[index] = food;
+      }
+    } catch (e) {
+      errorMessage = "Không thể cập nhật món ăn: $e";
+    } finally {
+      await fetchAllFoods();
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteFood(int foodId) async {
+    int index = foods.indexWhere((f) => f.foodId == foodId);
+    if (index != -1) {
+      foods.removeAt(index);
+      notifyListeners();
+    }
+    try {
+      await _service.deleteFood(foodId);
+    } catch (e) {
+      errorMessage = "Không thể xóa món ăn: $e";
+    } finally {
+      await fetchAllFoods();
+      notifyListeners();
+    }
   }
 }

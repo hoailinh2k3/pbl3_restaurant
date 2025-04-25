@@ -21,45 +21,51 @@ class _SettingPageState extends State<SettingPage> {
       body: Column(
         children: [
           HelloUser(),
-          Row(
-            children: [
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                padding: EdgeInsets.symmetric(vertical: 10),
-                height: 180,
-                width: 200,
-                decoration: BoxDecoration(
-                  color: ColorStyles.primary,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: ListView.builder(
-                  itemCount: vm.settings.length,
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () {
-                        vm.isSelected = index;
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        alignment: Alignment.centerLeft,
-                        width: 200,
-                        height: 40,
-                        color: (vm.isSelected == index)
-                            ? ColorStyles.mainText
-                            : Colors.transparent,
-                        child: Text(
-                          vm.settings[index],
-                          style: TextStyles.subscription.bold.getColor(
-                              (vm.isSelected == index)
-                                  ? ColorStyles.primary
-                                  : ColorStyles.subText),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  width: 200,
+                  height: 220,
+                  decoration: BoxDecoration(
+                    color: ColorStyles.primary,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ListView.builder(
+                    itemCount: vm.settings.length,
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        onTap: () {
+                          vm.isSelected = index;
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          alignment: Alignment.centerLeft,
+                          width: 200,
+                          height: 40,
+                          color: (vm.isSelected == index)
+                              ? ColorStyles.mainText
+                              : Colors.transparent,
+                          child: Text(
+                            vm.settings[index],
+                            style: TextStyles.subscription.bold.getColor(
+                                (vm.isSelected == index)
+                                    ? ColorStyles.primary
+                                    : ColorStyles.subText),
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              )
-            ],
+                Expanded(
+                  child: vm.settingPage[vm.isSelected],
+                )
+              ],
+            ),
           )
         ],
       ),

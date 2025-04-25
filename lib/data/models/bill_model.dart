@@ -7,22 +7,31 @@ class BillModel {
     required this.danhSachMon,
   });
 
-  factory BillModel.fromJson(Map<String, dynamic> json) => BillModel(
-        billId: json["billId"],
-        danhSachMon: List<DanhSachMon>.from(
-            json["danhSachMon"].map((x) => DanhSachMon.fromJson(x))),
-      );
+  factory BillModel.fromJson(Map<String, dynamic> json) {
+    final rawList = json['danhSachMon'] as List<dynamic>?;
+
+    return BillModel(
+      billId: json['billId'] as int,
+      danhSachMon: rawList != null
+          ? rawList
+              .map((e) => DanhSachMon.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : <DanhSachMon>[],
+    );
+  }
 
   Map<String, dynamic> toJson() => {
-        "billId": billId,
-        "danhSachMon": List<dynamic>.from(danhSachMon.map((x) => x.toJson())),
+        'billId': billId,
+        'danhSachMon': danhSachMon.map((x) => x.toJson()).toList(),
       };
 }
 
 class DanhSachMon {
   int billItemId;
   int foodId;
-  String tenMon;
+  String picture;
+  String foodName;
+  int price;
   int quantity;
   String description;
   int subTotal;
@@ -30,7 +39,9 @@ class DanhSachMon {
   DanhSachMon({
     required this.billItemId,
     required this.foodId,
-    required this.tenMon,
+    required this.picture,
+    required this.foodName,
+    required this.price,
     required this.quantity,
     required this.description,
     required this.subTotal,
@@ -39,7 +50,9 @@ class DanhSachMon {
   factory DanhSachMon.fromJson(Map<String, dynamic> json) => DanhSachMon(
         billItemId: json["billItemId"],
         foodId: json["foodId"],
-        tenMon: json["tenMon"],
+        picture: json["picture"],
+        foodName: json["foodName"],
+        price: json["price"],
         quantity: json["quantity"],
         description: json["description"] ?? "",
         subTotal: json["subTotal"],
@@ -48,9 +61,19 @@ class DanhSachMon {
   Map<String, dynamic> toJson() => {
         "billItemId": billItemId,
         "foodId": foodId,
-        "tenMon": tenMon,
+        "picture": picture,
+        "foodName": foodName,
+        "price": price,
         "quantity": quantity,
         "description": description,
         "subTotal": subTotal,
+      };
+}
+
+extension ToUpsertJson on DanhSachMon {
+  Map<String, dynamic> toUpsertJson() => {
+        'foodId': foodId,
+        'quantity': quantity,
+        'description': description,
       };
 }

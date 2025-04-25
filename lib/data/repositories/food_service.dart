@@ -24,4 +24,77 @@ class FoodService {
       rethrow;
     }
   }
+
+  Future<void> addFood(FoodModel food) async {
+    try {
+      final url = Uri.parse(Api.foodAdd).replace(queryParameters: {
+        'TenMonAn': food.name,
+        'MaDanhMuc': food.categoryId.toString(),
+        'Gia': food.price.toString(),
+        'urlAnh': food.picture,
+      });
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Accept': 'application/json',
+        },
+        body: '',
+      );
+      if (response.statusCode != 200) {
+        throw Exception('Failed to add food');
+      }
+    } catch (e) {
+      print("Error adding food: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateFood(FoodModel food) async {
+    try {
+      final url = Uri.parse(Api.foodUpdate).replace(queryParameters: {
+        'ID': food.foodId.toString(),
+        'TenMonAn': food.name,
+        'MaDanhMuc': food.categoryId.toString(),
+        'Gia': food.price.toString(),
+        'urlAnh': food.picture,
+      });
+
+      final response = await http.put(
+        url,
+        headers: {
+          'Accept': 'application/json',
+        },
+        body: '',
+      );
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update food');
+      }
+    } catch (e) {
+      print("Error updating food: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> deleteFood(int foodId) async {
+    try {
+      final url = Uri.parse(Api.foodDelete).replace(queryParameters: {
+        'ID': foodId.toString(),
+      });
+
+      final response = await http.delete(
+        url,
+        headers: {
+          'Accept': 'application/json',
+        },
+        body: '',
+      );
+      if (response.statusCode != 200) {
+        throw Exception('Failed to delete food');
+      }
+    } catch (e) {
+      print("Error deleting food: $e");
+      rethrow;
+    }
+  }
 }

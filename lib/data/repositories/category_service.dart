@@ -27,4 +27,72 @@ class CategoryService {
       rethrow;
     }
   }
+
+  Future<void> addCategory(CategoryModel category) async {
+    try {
+      final url = Uri.parse(Api.categoryAdd).replace(queryParameters: {
+        'TenDanhMuc': category.categoryName,
+      });
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Accept': 'application/json',
+        },
+        body: '',
+      );
+      if (response.statusCode != 200) {
+        throw Exception('Failed to add category');
+      }
+    } catch (e) {
+      print("Error adding category: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateCategory(CategoryModel category) async {
+    try {
+      final url = Uri.parse(Api.categoryUpdate).replace(queryParameters: {
+        'ID': category.categoryId.toString(),
+        'TenDanhMuc': category.categoryName,
+      });
+
+      final response = await http.put(
+        url,
+        headers: {
+          'Accept': 'application/json',
+        },
+        body: '',
+      );
+      if (response.statusCode != 200) {
+        print(response.body);
+        throw Exception('Failed to update category');
+      }
+    } catch (e) {
+      print("Error updating category: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> deleteCategory(int categoryId) async {
+    try {
+      final url = Uri.parse(Api.categoryDelete).replace(queryParameters: {
+        'ID': categoryId.toString(),
+      });
+
+      final response = await http.delete(
+        url,
+        headers: {
+          'Accept': 'application/json',
+        },
+        body: '',
+      );
+      if (response.statusCode != 200) {
+        throw Exception('Failed to delete category');
+      }
+    } catch (e) {
+      print("Error deleting category: $e");
+      rethrow;
+    }
+  }
 }

@@ -20,7 +20,6 @@ class UserModel {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
-    // Nếu json có key "user", thì parse json['user'], ngược lại parse json luôn
     final data = (json['user'] is Map<String, dynamic>)
         ? json['user'] as Map<String, dynamic>
         : json;
@@ -33,9 +32,6 @@ class UserModel {
       role: data['role'] as String,
       branchId: data['branchId'] as int,
       picture: data['picture'],
-      // Nếu server trả createAt là chuỗi dạng "2025-04-15 07:50:17 PM",
-      // bạn có thể parse bằng DateFormat hoặc .toIso8601String() ở server.
-      // Tạm parse đơn giản:
       createAt: DateTime.tryParse(data['createAt'] as String) ?? DateTime.now(),
     );
   }

@@ -24,4 +24,46 @@ class CategoryViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> addCategory(CategoryModel category) async {
+    categories.add(category);
+    notifyListeners();
+    try {
+      await _service.addCategory(category);
+      categories.add(category);
+    } catch (e) {
+      errorMessage = "Không thể thêm danh mục: $e";
+    } finally {
+      await fetchCategories();
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateCategory(CategoryModel category) async {
+    int index =
+        categories.indexWhere((c) => c.categoryId == category.categoryId);
+    if (index != -1) {
+      categories[index] = category;
+      notifyListeners();
+    }
+    try {
+      await _service.updateCategory(category);
+      if (index != -1) {
+        categories[index] = category;
+      }
+    } catch (e) {
+      errorMessage = "Không thể cập nhật danh mục: $e";
+    } finally {
+      await fetchCategories();
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteCategory(int categoryId) async {
+    int index = categories.indexWhere((c) => c.categoryId == categoryId);
+    if (index != -1) {
+      categories.removeAt(index);
+      notifyListeners();
+    }
+  }
 }

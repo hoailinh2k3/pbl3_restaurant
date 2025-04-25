@@ -18,8 +18,19 @@ class Api {
 
   // Table
   static const tableList = "$baseUrl/Table/ByBranch";
+  static const tableAdd = "$baseUrl/Table/Add";
+  static const tableUpdate = "$baseUrl/Table/Update";
+  static const tableDelete = "$baseUrl/Table/Delete";
 
   // Bill
-  static const String billList = "$baseUrl/Bill/GetOrCreateByTable";
+  static const String billList = "$baseUrl/Bill/GetByTable";
   static const String billUpsertFood = "$baseUrl/Bill/UpsertFood";
+  static const String billDeleteFood = "$baseUrl/Bill/DeleteFood";
+  static const String billCheckout = "$baseUrl/Bill/Checkout";
+
+  // Branch
+  static const String branchList = "$baseUrl/Branch/List";
+  static const String branchAdd = "$baseUrl/Branch/Add";
+  static const String branchUpdate = "$baseUrl/Branch/Update";
+  static const String branchDelete = "$baseUrl/Branch/Delete";
 }

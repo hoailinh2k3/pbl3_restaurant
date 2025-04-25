@@ -4,7 +4,6 @@ import 'package:pbl3_restaurant/core/constants/text_styles.dart';
 import 'package:pbl3_restaurant/core/helpers/asset_helper.dart';
 import 'package:pbl3_restaurant/core/helpers/image_helper.dart';
 import 'package:pbl3_restaurant/features/viewmodel/main_page_view_model.dart';
-import 'package:pbl3_restaurant/features/viewmodel/menu_page_view_model.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/logout.dart';
@@ -22,13 +21,10 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<MainPageViewModel>(context);
-    final menuPagevm = Provider.of<MenuPageViewModel>(context);
     var size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: (!menuPagevm.isPaid)
-          ? ColorStyles.secondary
-          : Colors.black.withOpacity(0.5),
+      backgroundColor: ColorStyles.secondary,
       body: Row(
         children: [
           SizedBox(
@@ -94,7 +90,6 @@ class _MainPageState extends State<MainPage> {
 
   Widget railNavigator() {
     final viewModel = Provider.of<MainPageViewModel>(context);
-    final menuPagevm = Provider.of<MenuPageViewModel>(context);
     final width = MediaQuery.of(context).size.width;
     return ListView.builder(
       itemCount: viewModel.railItems.length,
@@ -104,9 +99,7 @@ class _MainPageState extends State<MainPage> {
           padding: const EdgeInsets.all(10.0),
           decoration: BoxDecoration(
             color: viewModel.currentIndex == index
-                ? ((!menuPagevm.isPaid)
-                    ? ColorStyles.secondary
-                    : Colors.black.withOpacity(0.5))
+                ? ColorStyles.secondary
                 : ColorStyles.primary,
             borderRadius:
                 viewModel.previousIndex == index || viewModel.postIndex == index

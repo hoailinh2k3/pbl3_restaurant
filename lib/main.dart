@@ -1,4 +1,3 @@
-import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
@@ -14,11 +13,12 @@ import 'package:pbl3_restaurant/features/viewmodel/user_view_model.dart';
 import 'package:provider/provider.dart';
 
 import 'features/viewmodel/bill_view_model.dart';
+import 'features/viewmodel/branch_view_model.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
-  if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+  if (!kIsWeb) {
     doWhenWindowReady(() {
       final win = appWindow;
       win.size = const Size(1280, 720);
@@ -35,7 +35,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // Provider chính, không phụ thuộc gì
         ChangeNotifierProvider(create: (_) => UserViewModel()),
         ChangeNotifierProvider(create: (_) => MainPageViewModel()),
         ChangeNotifierProvider(create: (_) => MenuPageViewModel()),
@@ -43,8 +42,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CategoryViewModel()),
         ChangeNotifierProvider(create: (_) => FoodViewModel()),
         ChangeNotifierProvider(create: (_) => BillViewModel()),
+        ChangeNotifierProvider(create: (_) => BranchViewModel()),
       ],
-      // Dùng builder để đảm bảo có thể đọc UserViewModel
       builder: (context, child) {
         final userVM = Provider.of<UserViewModel>(context, listen: false);
         return ChangeNotifierProvider<TablePageViewModel>(

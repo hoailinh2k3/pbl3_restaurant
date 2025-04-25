@@ -2,6 +2,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:pbl3_restaurant/core/constants/color_styles.dart';
 import 'package:pbl3_restaurant/core/constants/text_styles.dart';
+import 'package:pbl3_restaurant/core/helpers/format_currency.dart';
 import 'package:pbl3_restaurant/data/models/category_model.dart';
 import 'package:pbl3_restaurant/features/view/home/order_page.dart';
 import 'package:pbl3_restaurant/features/view/home/payment_page.dart';
@@ -11,6 +12,8 @@ import 'package:pbl3_restaurant/features/viewmodel/menu_page_view_model.dart';
 import 'package:pbl3_restaurant/widgets/hello_user.dart';
 import 'package:pbl3_restaurant/widgets/underlined_category.dart';
 import 'package:provider/provider.dart';
+
+import '../../viewmodel/bill_view_model.dart';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
@@ -51,28 +54,30 @@ class _MenuPageState extends State<MenuPage> {
       key: _scaffoldKey,
       backgroundColor: ColorStyles.secondary,
       endDrawer: Drawer(
-          child: Navigator(
-        initialRoute: '/order_page',
-        onGenerateRoute: (RouteSettings settings) {
-          Widget page;
-          switch (settings.name) {
-            case '/order_page':
-              page = OrderPage();
-              break;
-            case '/payment_page':
-              page = PaymentPage();
-              break;
-            default:
-              page = OrderPage();
-          }
-          return PageRouteBuilder(
-            settings: settings,
-            pageBuilder: (context, animation, secondaryAnimation) => page,
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-          );
-        },
-      )),
+        width: ((width >= 600) ? 400 : width * 0.75),
+        child: Navigator(
+          initialRoute: '/order_page',
+          onGenerateRoute: (RouteSettings settings) {
+            Widget page;
+            switch (settings.name) {
+              case '/order_page':
+                page = OrderPage();
+                break;
+              case '/payment_page':
+                page = PaymentPage();
+                break;
+              default:
+                page = OrderPage();
+            }
+            return PageRouteBuilder(
+              settings: settings,
+              pageBuilder: (context, animation, secondaryAnimation) => page,
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            );
+          },
+        ),
+      ),
       body: Stack(
         children: [
           Row(
@@ -102,14 +107,19 @@ class _MenuPageState extends State<MenuPage> {
                     Expanded(
                         flex: vm.isPaid ? 2 : ((width <= 1200) ? 6 : 4),
                         child: Container()),
-                    OrderPage(),
+                    Expanded(
+                        flex: (width <= 1200) ? ((vm.isPaid) ? 6 : 4) : 2,
+                        child: OrderPage()),
                     if (vm.isPaid)
                       Container(
                         width: 0.5,
                         color: ColorStyles.mainText,
                         height: double.infinity,
                       ),
-                    if (vm.isPaid) PaymentPage(),
+                    if (vm.isPaid)
+                      Expanded(
+                          flex: (width <= 1200) ? ((vm.isPaid) ? 6 : 4) : 2,
+                          child: PaymentPage()),
                   ],
                 ),
         ],
@@ -119,6 +129,7 @@ class _MenuPageState extends State<MenuPage> {
 
   Widget menu(MenuPageViewModel vm, CategoryViewModel cvm, FoodViewModel fvm,
       double width) {
+    var billVM = context.read<BillViewModel>();
     final displayedFoods = vm.getFilteredFoods(fvm.foods);
     return Column(
       children: [
@@ -272,71 +283,86 @@ class _MenuPageState extends State<MenuPage> {
                   ),
                   itemBuilder: (context, index) {
                     final food = displayedFoods[index];
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: ColorStyles.primary,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Ảnh món ăn
-                          Expanded(
-                            flex: 5,
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(10)),
-                              child: Image.network(
-                                food.picture,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    color: Colors.grey[200],
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      'Lỗi tải ảnh',
-                                      style: TextStyle(
-                                        color: ColorStyles.error,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
+                    final orderVM =
+                        Provider.of<BillViewModel>(context, listen: false);
+                    return InkWell(
+                      onTap: () {
+                        if (!billVM.isLoading) {
+                          orderVM.addLocalBillItem(
+                            foodId: food.foodId,
+                            picture: food.picture,
+                            foodName: food.name,
+                            price: food.price,
+                          );
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: ColorStyles.primary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Ảnh món ăn
+                            Expanded(
+                              flex: 5,
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(10)),
+                                child: Image.network(
+                                  food.picture,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.grey[200],
+                                      alignment: Alignment.center,
+                                      child: const Text(
+                                        'Lỗi tải ảnh',
+                                        style: TextStyle(
+                                          color: ColorStyles.error,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-                          ),
 
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.only(left: 5, top: 5),
-                                  child: Text(
-                                    food.name,
-                                    style: TextStyles.subscription,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.only(left: 5, top: 5),
+                                    child: Text(
+                                      food.name,
+                                      style: TextStyles.subscription,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
-                                ),
-                                // Giá món ăn
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.only(left: 5, bottom: 5),
-                                  child: Text(
-                                    "${food.price.toStringAsFixed(0)} đ",
-                                    style: TextStyles.subscription,
+                                  // Giá món ăn
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 5, bottom: 5),
+                                    child: Text(
+                                      "${formatCurrency(food.price)}đ",
+                                      style: TextStyles.subscription,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     );
                   },
