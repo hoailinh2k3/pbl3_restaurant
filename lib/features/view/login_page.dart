@@ -94,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                         _usernameController.text,
                         _passwordController.text,
                       );
-                      if (vm.state == LoginState.success) {
+                      if (vm.state == LoginState.success && vm.user != null) {
                         Navigator.pushReplacementNamed(context, '/main_page');
                       }
                     },

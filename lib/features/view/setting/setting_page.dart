@@ -29,12 +29,13 @@ class _SettingPageState extends State<SettingPage> {
                   margin: EdgeInsets.symmetric(horizontal: 20),
                   padding: EdgeInsets.symmetric(vertical: 10),
                   width: 200,
-                  height: 220,
                   decoration: BoxDecoration(
                     color: ColorStyles.primary,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
                     itemCount: vm.settings.length,
                     itemBuilder: (context, index) {
                       return InkWell(
@@ -44,7 +45,6 @@ class _SettingPageState extends State<SettingPage> {
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 10),
                           alignment: Alignment.centerLeft,
-                          width: 200,
                           height: 40,
                           color: (vm.isSelected == index)
                               ? ColorStyles.mainText

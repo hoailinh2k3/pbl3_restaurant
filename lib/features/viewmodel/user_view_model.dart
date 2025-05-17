@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/models/user_model.dart';
 import '../../data/repositories/auth_service.dart';
@@ -45,10 +46,12 @@ class UserViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void logout() {
+  void logout() async {
     _message = '';
     _user = null;
     _state = LoginState.idle;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
     notifyListeners();
   }
 }

@@ -4,10 +4,13 @@ import 'package:pbl3_restaurant/core/constants/api.dart';
 import 'package:pbl3_restaurant/data/models/food_model.dart';
 
 class FoodService {
-  Future<List<FoodModel>> fetchAllFoods() async {
+  Future<List<FoodModel>> fetchAllFoods(String token) async {
     try {
       final url = Uri.parse(Api.foodList);
-      final response = await http.get(url);
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
@@ -25,7 +28,7 @@ class FoodService {
     }
   }
 
-  Future<void> addFood(FoodModel food) async {
+  Future<void> addFood(FoodModel food, String token) async {
     try {
       final url = Uri.parse(Api.foodAdd).replace(queryParameters: {
         'TenMonAn': food.name,
@@ -37,6 +40,7 @@ class FoodService {
       final response = await http.post(
         url,
         headers: {
+          'Authorization': 'Bearer $token',
           'Accept': 'application/json',
         },
         body: '',
@@ -50,7 +54,7 @@ class FoodService {
     }
   }
 
-  Future<void> updateFood(FoodModel food) async {
+  Future<void> updateFood(FoodModel food, String token) async {
     try {
       final url = Uri.parse(Api.foodUpdate).replace(queryParameters: {
         'ID': food.foodId.toString(),
@@ -63,6 +67,7 @@ class FoodService {
       final response = await http.put(
         url,
         headers: {
+          'Authorization': 'Bearer $token',
           'Accept': 'application/json',
         },
         body: '',
@@ -76,7 +81,7 @@ class FoodService {
     }
   }
 
-  Future<void> deleteFood(int foodId) async {
+  Future<void> deleteFood(int foodId, String token) async {
     try {
       final url = Uri.parse(Api.foodDelete).replace(queryParameters: {
         'ID': foodId.toString(),
@@ -85,6 +90,7 @@ class FoodService {
       final response = await http.delete(
         url,
         headers: {
+          'Authorization': 'Bearer $token',
           'Accept': 'application/json',
         },
         body: '',

@@ -191,9 +191,27 @@ class _FoodSettingState extends State<FoodSetting> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text("Chọn món", style: TextStyles.title.bold),
+              const SizedBox(width: 10),
+              InkWell(
+                onTap: () => showFoodDialog(context),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: ColorStyles.primary,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: ColorStyles.accent,
+                      width: 2,
+                    ),
+                  ),
+                  child: Center(
+                    child: Icon(Icons.add, color: ColorStyles.accent),
+                  ),
+                ),
+              ),
+              const Spacer(),
               DropdownButton2<String>(
                 underline: SizedBox(),
                 alignment: Alignment.center,
@@ -238,129 +256,144 @@ class _FoodSettingState extends State<FoodSetting> {
         // Danh sách món ăn
         Expanded(
           child: (!fvm.isLoading)
-              ? GridView.builder(
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  itemCount: displayedFoods.length + 1,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount:
-                        (width <= 1200 ? 2 : (width <= 1400 ? 3 : 4)),
-                    crossAxisSpacing: 35,
-                    mainAxisSpacing: 20,
-                    childAspectRatio: 7 / 9,
-                  ),
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return InkWell(
-                        onTap: () => showFoodDialog(context),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: ColorStyles.primary,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: ColorStyles.accent,
-                              width: 2,
-                            ),
-                          ),
-                          child: Center(
-                            child: Icon(Icons.add,
-                                size: 50, color: ColorStyles.accent),
-                          ),
-                        ),
-                      );
-                    }
+              ? ListView.builder(
+                  itemCount: cvm.categories.length,
+                  itemBuilder: (context, catIndex) {
+                    final category = cvm.categories[catIndex];
 
-                    final food = displayedFoods[index - 1];
-                    return InkWell(
-                      onTap: () => showFoodDialog(context, food: food),
-                      child: Stack(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: ColorStyles.primary,
-                              borderRadius: BorderRadius.circular(10),
+                    final foodByCat = displayedFoods
+                        .where((f) => f.categoryId == category.categoryId)
+                        .toList();
+                    if (foodByCat.isEmpty) return SizedBox.shrink();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (vm.selectedCategory == 0)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Text(
+                              "${category.categoryName} (${foodByCat.length})",
+                              style: TextStyles.title.bold,
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Ảnh món ăn
-                                Expanded(
-                                  flex: 5,
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(
-                                        top: Radius.circular(10)),
-                                    child: Image.network(
-                                      food.picture,
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                      errorBuilder: (ctx, err, st) => Container(
-                                        color: Colors.grey[200],
-                                        alignment: Alignment.center,
-                                        child: const Text(
-                                          'Lỗi tải ảnh',
-                                          style: TextStyle(
-                                            color: ColorStyles.error,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
+                          ),
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
+                          itemCount: foodByCat.length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount:
+                                (width <= 1200 ? 2 : (width <= 1400 ? 3 : 4)),
+                            crossAxisSpacing: 35,
+                            mainAxisSpacing: 20,
+                            childAspectRatio: 7 / 9,
+                          ),
+                          itemBuilder: (context, index) {
+                            final food = foodByCat[index];
+
+                            return InkWell(
+                              onTap: () => showFoodDialog(context, food: food),
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: ColorStyles.primary,
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                  ),
-                                ),
-                                // Tên & Giá
-                                Expanded(
-                                  flex: 2,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5, vertical: 3),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(
-                                          food.name,
-                                          style: TextStyles.subscription,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
+                                        // Ảnh món ăn
+                                        Expanded(
+                                          flex: 5,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                const BorderRadius.vertical(
+                                                    top: Radius.circular(10)),
+                                            child: Image.network(
+                                              food.picture,
+                                              fit: BoxFit.cover,
+                                              width: double.infinity,
+                                              errorBuilder: (ctx, err, st) =>
+                                                  Container(
+                                                color: Colors.grey[200],
+                                                alignment: Alignment.center,
+                                                child: const Text(
+                                                  'Lỗi tải ảnh',
+                                                  style: TextStyle(
+                                                    color: ColorStyles.error,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                        Text(
-                                          "${formatCurrency(food.price)}đ",
-                                          style: TextStyles.subscription,
+                                        // Tên & Giá
+                                        Expanded(
+                                          flex: 2,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 5, vertical: 3),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  food.name,
+                                                  style:
+                                                      TextStyles.subscription,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                Text(
+                                                  "${formatCurrency(food.price)}đ",
+                                                  style:
+                                                      TextStyles.subscription,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: IconButton(
-                                style: IconButton.styleFrom(
-                                    backgroundColor:
-                                        ColorStyles.primary.withOpacity(0.5),
-                                    shape: CircleBorder(),
-                                    hoverColor:
-                                        ColorStyles.error.withOpacity(0.5)),
-                                icon: Icon(Icons.delete,
-                                    color: ColorStyles.error),
-                                onPressed: () => showConfirmDialog(
-                                      context,
-                                      itemName: "món ăn",
-                                      onConfirm: () {
-                                        fvm.deleteFood(food.foodId);
-                                      },
-                                    )),
-                          ),
-                        ],
-                      ),
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: IconButton(
+                                        style: IconButton.styleFrom(
+                                            backgroundColor: ColorStyles.primary
+                                                .withOpacity(0.5),
+                                            shape: CircleBorder(),
+                                            hoverColor: ColorStyles.error
+                                                .withOpacity(0.5)),
+                                        icon: Icon(Icons.delete,
+                                            color: ColorStyles.error),
+                                        onPressed: () => showConfirmDialog(
+                                              context,
+                                              itemName: "món ăn",
+                                              onConfirm: () {
+                                                fvm.deleteFood(food.foodId);
+                                              },
+                                            )),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     );
-                  },
-                )
+                  })
               : Center(
                   child: CircularProgressIndicator(color: ColorStyles.subText),
                 ),

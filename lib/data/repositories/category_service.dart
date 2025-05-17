@@ -4,10 +4,13 @@ import 'package:pbl3_restaurant/core/constants/api.dart';
 import '../models/category_model.dart';
 
 class CategoryService {
-  Future<List<CategoryModel>> fetchCategories() async {
+  Future<List<CategoryModel>> fetchCategories(String token) async {
     try {
       final url = Uri.parse(Api.categoryList);
-      final response = await http.get(url);
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
@@ -28,7 +31,7 @@ class CategoryService {
     }
   }
 
-  Future<void> addCategory(CategoryModel category) async {
+  Future<void> addCategory(CategoryModel category, String token) async {
     try {
       final url = Uri.parse(Api.categoryAdd).replace(queryParameters: {
         'TenDanhMuc': category.categoryName,
@@ -37,6 +40,7 @@ class CategoryService {
       final response = await http.post(
         url,
         headers: {
+          'Authorization': 'Bearer $token',
           'Accept': 'application/json',
         },
         body: '',
@@ -50,7 +54,7 @@ class CategoryService {
     }
   }
 
-  Future<void> updateCategory(CategoryModel category) async {
+  Future<void> updateCategory(CategoryModel category, String token) async {
     try {
       final url = Uri.parse(Api.categoryUpdate).replace(queryParameters: {
         'ID': category.categoryId.toString(),
@@ -60,6 +64,7 @@ class CategoryService {
       final response = await http.put(
         url,
         headers: {
+          'Authorization': 'Bearer $token',
           'Accept': 'application/json',
         },
         body: '',
@@ -74,7 +79,7 @@ class CategoryService {
     }
   }
 
-  Future<void> deleteCategory(int categoryId) async {
+  Future<void> deleteCategory(int categoryId, String token) async {
     try {
       final url = Uri.parse(Api.categoryDelete).replace(queryParameters: {
         'ID': categoryId.toString(),
@@ -83,6 +88,7 @@ class CategoryService {
       final response = await http.delete(
         url,
         headers: {
+          'Authorization': 'Bearer $token',
           'Accept': 'application/json',
         },
         body: '',

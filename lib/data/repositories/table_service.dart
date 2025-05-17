@@ -4,9 +4,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class TableService {
-  Future<List<TableModel>> fetchTables(int id) async {
+  Future<List<TableModel>> fetchTables(int id, String token) async {
     final url = Uri.parse("${Api.tableList}?branchId=$id");
-    final response = await http.get(url);
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    );
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
       final List<dynamic> dataList = jsonData["data"];
@@ -17,27 +20,30 @@ class TableService {
     }
   }
 
-  Future<void> addTable(TableModel table) async {
-    final url = Uri.parse(Api.tableAdd).replace(queryParameters: {
-      'tableNumber': table.tableNumber.toString(),
-      'capacity': table.capacity.toString(),
-      'statusID': '1',
-      'branchID': table.branchId.toString(),
-    });
+  Future<void> addTable(TableModel table, String token) async {
+    final url = Uri.parse(Api.tableAdd).replace(
+      queryParameters: {
+        'tableNumber': table.tableNumber.toString(),
+        'capacity': table.capacity.toString(),
+        'statusID': '1',
+        'branchID': table.branchId.toString(),
+      },
+    );
 
     final response = await http.post(
       url,
       headers: {
         'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
       },
       body: '',
     );
     if (response.statusCode != 200) {
-      throw Exception('Failed to add table');
+      throw Exception('Failed to add table: ${response.statusCode}');
     }
   }
 
-  Future<void> updateTable(TableModel table) async {
+  Future<void> updateTable(TableModel table, String token) async {
     final url = Uri.parse(Api.tableUpdate).replace(queryParameters: {
       'ID': table.tableId.toString(),
       'tableNumber': table.tableNumber.toString(),
@@ -46,19 +52,20 @@ class TableService {
       'branchID': table.branchId.toString(),
     });
 
-    final response = await http.post(
+    final response = await http.put(
       url,
       headers: {
+        'Authorization': 'Bearer $token',
         'Accept': 'application/json',
       },
       body: '',
     );
     if (response.statusCode != 200) {
-      throw Exception('Failed to update table');
+      throw Exception('Failed to update table: ${response.statusCode}');
     }
   }
 
-  Future<void> deleteTable(int id) async {
+  Future<void> deleteTable(int id, String token) async {
     final url = Uri.parse(Api.tableDelete).replace(queryParameters: {
       'ID': id.toString(),
     });
@@ -66,12 +73,13 @@ class TableService {
     final response = await http.post(
       url,
       headers: {
+        'Authorization': 'Bearer $token',
         'Accept': 'application/json',
       },
       body: '',
     );
     if (response.statusCode != 200) {
-      throw Exception('Failed to delete table');
+      throw Exception('Failed to delete table: ${response.statusCode}');
     }
   }
 }

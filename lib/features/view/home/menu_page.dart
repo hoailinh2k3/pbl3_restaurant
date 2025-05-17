@@ -266,107 +266,137 @@ class _MenuPageState extends State<MenuPage> {
         // Danh sách món ăn
         Expanded(
           child: (!fvm.isLoading)
-              ? GridView.builder(
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  itemCount: displayedFoods.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: width <= 675
-                        ? 2
-                        : (width <= 1000
-                            ? 3
-                            : (width > 1000 && width <= 1200)
+              ? ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: cvm.categories.length,
+                  itemBuilder: (context, catIndex) {
+                    final category = cvm.categories[catIndex];
+
+                    final foodByCat = displayedFoods
+                        .where((f) => f.categoryId == category.categoryId)
+                        .toList();
+                    if (foodByCat.isEmpty) return SizedBox.shrink();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (vm.selectedCategory == 0)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Text(
+                              "${category.categoryName} (${foodByCat.length})",
+                              style: TextStyles.title.bold,
+                            ),
+                          ),
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: foodByCat.length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: width <= 675
                                 ? 2
-                                : (width <= 1400 ? 3 : 4)),
-                    crossAxisSpacing: 50,
-                    mainAxisSpacing: 20,
-                    childAspectRatio: 7 / 9,
-                  ),
-                  itemBuilder: (context, index) {
-                    final food = displayedFoods[index];
-                    final orderVM =
-                        Provider.of<BillViewModel>(context, listen: false);
-                    return InkWell(
-                      onTap: () {
-                        if (!billVM.isLoading) {
-                          orderVM.addLocalBillItem(
-                            foodId: food.foodId,
-                            picture: food.picture,
-                            foodName: food.name,
-                            price: food.price,
-                          );
-                        }
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: ColorStyles.primary,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Ảnh món ăn
-                            Expanded(
-                              flex: 5,
-                              child: ClipRRect(
-                                borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(10)),
-                                child: Image.network(
-                                  food.picture,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      color: Colors.grey[200],
-                                      alignment: Alignment.center,
-                                      child: const Text(
-                                        'Lỗi tải ảnh',
-                                        style: TextStyle(
-                                          color: ColorStyles.error,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
+                                : (width <= 1000
+                                    ? 3
+                                    : (width > 1000 && width <= 1200)
+                                        ? 2
+                                        : (width <= 1400 ? 3 : 4)),
+                            crossAxisSpacing: 50,
+                            mainAxisSpacing: 20,
+                            childAspectRatio: 7 / 9,
+                          ),
+                          itemBuilder: (ctx, index) {
+                            final food = foodByCat[index];
+                            final orderVM = Provider.of<BillViewModel>(context,
+                                listen: false);
+                            return InkWell(
+                              onTap: () {
+                                if (!billVM.isLoading) {
+                                  orderVM.addLocalBillItem(
+                                    foodId: food.foodId,
+                                    picture: food.picture,
+                                    foodName: food.name,
+                                    price: food.price,
+                                  );
+                                }
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: ColorStyles.primary,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Ảnh món ăn
+                                    Expanded(
+                                      flex: 5,
+                                      child: ClipRRect(
+                                        borderRadius:
+                                            const BorderRadius.vertical(
+                                                top: Radius.circular(10)),
+                                        child: Image.network(
+                                          food.picture,
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Container(
+                                              color: Colors.grey[200],
+                                              alignment: Alignment.center,
+                                              child: const Text(
+                                                'Lỗi tải ảnh',
+                                                style: TextStyle(
+                                                  color: ColorStyles.error,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            );
+                                          },
                                         ),
                                       ),
-                                    );
-                                  },
+                                    ),
+
+                                    Expanded(
+                                      flex: 2,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 5, top: 5),
+                                            child: Text(
+                                              food.name,
+                                              style: TextStyles.subscription,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          // Giá món ăn
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 5, bottom: 5),
+                                            child: Text(
+                                              "${formatCurrency(food.price)}đ",
+                                              style: TextStyles.subscription,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
                                 ),
                               ),
-                            ),
-
-                            Expanded(
-                              flex: 2,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.only(left: 5, top: 5),
-                                    child: Text(
-                                      food.name,
-                                      style: TextStyles.subscription,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  // Giá món ăn
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 5, bottom: 5),
-                                    child: Text(
-                                      "${formatCurrency(food.price)}đ",
-                                      style: TextStyles.subscription,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
+                            );
+                          },
                         ),
-                      ),
+                        const SizedBox(height: 10),
+                      ],
                     );
-                  },
-                )
+                  })
               : Center(
                   child: CircularProgressIndicator(
                     color: ColorStyles.subText,

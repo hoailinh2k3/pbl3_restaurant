@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pbl3_restaurant/core/helpers/get_token.dart';
 import 'package:pbl3_restaurant/data/repositories/bill_service.dart';
 
 import '../../data/models/bill_model.dart';
@@ -18,19 +19,23 @@ class BillViewModel extends ChangeNotifier {
   bool isPayment = false;
   bool isSaving = false;
   bool isLoading = true;
+  QRCode? qr;
 
   Map<int, BillModel> bills = {};
   final List<int> _removedBillItemIds = [];
   final BillService _service = BillService();
 
   Future<void> fetchBill() async {
+    print(tableId);
     final local = bills[tableId];
     if (local == null) isLoading = true;
     if (local != null && local.billId == 0) {
       bills.remove(tableId);
     }
+    _removedBillItemIds.clear();
     try {
-      final bill = await _service.fetchBill(tableId);
+      final token = await getToken();
+      final bill = await _service.fetchBill(tableId, token);
       if (bill != null) {
         bills[tableId] = bill;
       } else {
@@ -101,17 +106,51 @@ class BillViewModel extends ChangeNotifier {
 
     try {
       final items = bills[tableId]?.danhSachMon ?? [];
-      // Gọi upsert một lần với toàn bộ mảng, dùng extension
-      await _service.upsertFood(tableId, items);
+      final token = await getToken();
+      List<Future> futures = [];
+
+      if (items.isNotEmpty) {
+        futures.add(_service.upsertFood(tableId, items, token));
+      }
 
       if (_removedBillItemIds.isNotEmpty) {
-        await _service.deleteBillItem(_removedBillItemIds);
+        futures.add(_service.deleteBillItem(_removedBillItemIds, token));
         _removedBillItemIds.clear();
       }
+
+      await Future.wait(futures);
     } catch (e) {
       print("VIEWMODEL → Error saving bill: ${e.toString()}");
     } finally {
       (check) ? isSaving = false : isPayment = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> checkout(int paymentMethodId, int? money) async {
+    isPayment = true;
+    notifyListeners();
+    try {
+      final bill = bills[tableId];
+      if (bill != null) {
+        final token = await getToken();
+        if (paymentMethodId == 2) {
+          qr = null;
+          qr = (await _service.checkout(tableId, paymentMethodId, null, token))
+              as QRCode?;
+        }
+        if (paymentMethodId == 1) {
+          await _service.checkout(tableId, paymentMethodId, money, token);
+          bills.remove(tableId);
+        }
+      }
+      return true;
+    } catch (e, st) {
+      print("VIEWMODEL → Error during checkout: $e");
+      print(st);
+      return false;
+    } finally {
+      isPayment = false;
       notifyListeners();
     }
   }
@@ -152,26 +191,6 @@ class BillViewModel extends ChangeNotifier {
               subTotal: 0));
       item.quantity--;
       item.subTotal = item.price * item.quantity;
-      notifyListeners();
-    }
-  }
-
-  Future<bool> checkout(int paymentMethodId) async {
-    isPayment = true;
-    notifyListeners();
-    try {
-      final bill = bills[tableId];
-      if (bill != null) {
-        await _service.checkout(bill.billId, paymentMethodId);
-        bills.remove(tableId);
-      }
-      return true;
-    } catch (e, st) {
-      print("VIEWMODEL → Error during checkout: $e");
-      print(st);
-      return false;
-    } finally {
-      isPayment = false;
       notifyListeners();
     }
   }

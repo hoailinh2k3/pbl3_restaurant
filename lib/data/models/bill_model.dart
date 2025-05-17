@@ -70,6 +70,20 @@ class DanhSachMon {
       };
 }
 
+class QRCode {
+  final int billId;
+  final int price;
+  final String qr;
+
+  QRCode({required this.billId, required this.price, required this.qr});
+
+  factory QRCode.fromJson(Map<String, dynamic> json) => QRCode(
+        billId: json["billId"],
+        price: json["totalPrice"],
+        qr: json["qrBase64"],
+      );
+}
+
 extension ToUpsertJson on DanhSachMon {
   Map<String, dynamic> toUpsertJson() => {
         'foodId': foodId,

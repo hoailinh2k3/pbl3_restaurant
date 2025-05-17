@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pbl3_restaurant/data/models/bill_model.dart';
+import 'package:pbl3_restaurant/features/viewmodel/table_page_view_model.dart';
 import 'package:pbl3_restaurant/widgets/my_text_field.dart';
 import 'package:provider/provider.dart';
 
@@ -31,6 +32,7 @@ class _OrderPageState extends State<OrderPage> {
   @override
   Widget build(BuildContext context) {
     var vm = Provider.of<MenuPageViewModel>(context);
+    var tableVM = context.watch<TablePageViewModel>();
     var billVM = context.watch<BillViewModel>();
     var size = MediaQuery.of(context).size;
 
@@ -159,7 +161,8 @@ class _OrderPageState extends State<OrderPage> {
                                     ? MyButton(
                                         onPressed: () async {
                                           await billVM.save(true);
-                                          Navigator.pushNamed(
+                                          tableVM.fetchTables();
+                                          await Navigator.pushNamed(
                                             context,
                                             '/table_page',
                                           );
@@ -182,6 +185,7 @@ class _OrderPageState extends State<OrderPage> {
                                     ? MyButton(
                                         onPressed: () async {
                                           await billVM.save(false);
+                                          await billVM.checkout(2, null);
                                           if (size.width <= 1000) {
                                             Navigator.pushNamed(
                                               context,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pbl3_restaurant/core/helpers/get_token.dart';
 import 'package:pbl3_restaurant/data/models/category_model.dart';
 import 'package:pbl3_restaurant/data/repositories/category_service.dart';
 
@@ -14,10 +15,11 @@ class CategoryViewModel extends ChangeNotifier {
 
   Future<void> fetchCategories() async {
     try {
+      String token = await getToken();
       errorMessage = null;
       notifyListeners();
 
-      categories = await _service.fetchCategories();
+      categories = await _service.fetchCategories(token);
     } catch (e) {
       errorMessage = "Không thể tải danh mục: $e";
     } finally {
@@ -29,7 +31,8 @@ class CategoryViewModel extends ChangeNotifier {
     categories.add(category);
     notifyListeners();
     try {
-      await _service.addCategory(category);
+      String token = await getToken();
+      await _service.addCategory(category, token);
       categories.add(category);
     } catch (e) {
       errorMessage = "Không thể thêm danh mục: $e";
@@ -47,7 +50,8 @@ class CategoryViewModel extends ChangeNotifier {
       notifyListeners();
     }
     try {
-      await _service.updateCategory(category);
+      String token = await getToken();
+      await _service.updateCategory(category, token);
       if (index != -1) {
         categories[index] = category;
       }

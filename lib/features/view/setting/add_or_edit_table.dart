@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pbl3_restaurant/features/viewmodel/user_view_model.dart';
 import '/features/viewmodel/table_page_view_model.dart';
 import '/data/models/table_model.dart';
 import 'package:provider/provider.dart';
@@ -11,8 +12,7 @@ Future<void> showTableDialog(BuildContext context, {TableModel? table}) {
       TextEditingController(text: table?.tableNumber.toString() ?? '');
   final capacityCtl =
       TextEditingController(text: table?.capacity.toString() ?? '');
-  final branchId =
-      context.read<TablePageViewModel>().userViewModel.user!.branchId;
+  final branchId = context.read<UserViewModel>().user!.branchId;
   var width = MediaQuery.of(context).size.width;
 
   return showDialog(

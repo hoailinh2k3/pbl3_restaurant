@@ -1,51 +1,39 @@
 import 'dart:async'; // ①
 import 'package:flutter/material.dart';
+import 'package:pbl3_restaurant/core/helpers/get_token.dart';
 import 'package:pbl3_restaurant/data/models/table_model.dart';
 import 'package:pbl3_restaurant/data/repositories/table_service.dart';
 import 'package:pbl3_restaurant/features/viewmodel/user_view_model.dart';
 
 class TablePageViewModel extends ChangeNotifier {
-  final TableService tableService;
+  final TableService tableService = TableService();
   final UserViewModel userViewModel;
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
 
   List<TableModel> _tables = [];
   List<TableModel> get tables => _tables;
 
-  Timer? _pollTimer; // ②
-
-  TablePageViewModel({
-    required this.userViewModel,
-    TableService? tableService,
-  }) : tableService = tableService ?? TableService() {
-    // Khi user login xong
-    if (userViewModel.user != null) {
-      fetchTables();
-      _startAutoRefresh(); // ③
-    }
-    userViewModel.addListener(_onUserChanged);
-  }
-
-  void _onUserChanged() {
-    if (userViewModel.user != null) {
-      fetchTables();
-      _startAutoRefresh(); // Bật lại khi user thay đổi/hết login
-    } else {
-      _stopAutoRefresh(); // Tắt polling khi logout
-      _tables = [];
-      notifyListeners();
-    }
+  TablePageViewModel(this.userViewModel) {
+    fetchTables();
   }
 
   Future<void> fetchTables() async {
-    final branchId = userViewModel.user!.branchId;
+    final branchId = userViewModel.user?.branchId;
+    String token = await getToken();
+    if (branchId == null) return;
+    if (_tables.isEmpty) _isLoading = true;
+    notifyListeners();
     try {
-      final response = await tableService.fetchTables(branchId);
+      final response = await tableService.fetchTables(branchId, token);
       if (_tables != response) {
         _tables = response;
-        notifyListeners();
       }
     } catch (e) {
-      // handle error nếu cần
+      print("Error fetching tables: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -53,7 +41,8 @@ class TablePageViewModel extends ChangeNotifier {
     _tables.add(table);
     notifyListeners();
     try {
-      await tableService.addTable(table);
+      String token = await getToken();
+      await tableService.addTable(table, token);
     } catch (e) {
       print("Error adding table: $e");
       _tables.removeWhere((t) => t.tableId == table.tableId);
@@ -71,7 +60,8 @@ class TablePageViewModel extends ChangeNotifier {
       notifyListeners();
     }
     try {
-      await tableService.updateTable(table);
+      String token = await getToken();
+      await tableService.updateTable(table, token);
     } catch (e) {
       print("Error updating table: $e");
     } finally {
@@ -83,29 +73,15 @@ class TablePageViewModel extends ChangeNotifier {
   Future<void> deleteTable(int tableId) async {
     int index = _tables.indexWhere((t) => t.tableId == tableId);
     if (index != -1) {
+      String token = await getToken();
       _tables.removeAt(index);
       notifyListeners();
     }
   }
 
-  void _startAutoRefresh() {
-    // tránh tạo nhiều timer
-    _pollTimer?.cancel();
-    _pollTimer = Timer.periodic(
-      Duration(milliseconds: 1),
-      (_) => fetchTables(),
-    );
-  }
-
-  void _stopAutoRefresh() {
-    _pollTimer?.cancel();
-    _pollTimer = null;
-  }
-
   @override
   void dispose() {
-    userViewModel.removeListener(_onUserChanged);
-    _stopAutoRefresh(); // ④
+    userViewModel.removeListener(fetchTables);
     super.dispose();
   }
 }

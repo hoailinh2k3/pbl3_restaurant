@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:pbl3_restaurant/core/helpers/get_token.dart';
 import 'package:pbl3_restaurant/data/models/food_model.dart';
 import 'package:pbl3_restaurant/data/repositories/food_service.dart';
 
@@ -20,11 +21,12 @@ class FoodViewModel extends ChangeNotifier {
   // Hàm gọi API để lấy danh sách Food
   Future<void> fetchAllFoods() async {
     try {
+      String token = await getToken();
       isLoading = (foods.isEmpty) ? true : false;
       errorMessage = null;
       notifyListeners();
 
-      foods = await _service.fetchAllFoods();
+      foods = await _service.fetchAllFoods(token);
     } catch (e) {
       // Bắt lỗi, có thể gán errorMessage để hiển thị
       errorMessage = "Không thể tải món ăn: $e";
@@ -38,7 +40,8 @@ class FoodViewModel extends ChangeNotifier {
     foods.add(food);
     notifyListeners();
     try {
-      await _service.addFood(food);
+      String token = await getToken();
+      await _service.addFood(food, token);
       foods.add(food);
     } catch (e) {
       errorMessage = "Không thể thêm món ăn: $e";
@@ -55,7 +58,8 @@ class FoodViewModel extends ChangeNotifier {
       notifyListeners();
     }
     try {
-      await _service.updateFood(food);
+      String token = await getToken();
+      await _service.updateFood(food, token);
       if (index != -1) {
         foods[index] = food;
       }
@@ -74,7 +78,8 @@ class FoodViewModel extends ChangeNotifier {
       notifyListeners();
     }
     try {
-      await _service.deleteFood(foodId);
+      String token = await getToken();
+      await _service.deleteFood(foodId, token);
     } catch (e) {
       errorMessage = "Không thể xóa món ăn: $e";
     } finally {

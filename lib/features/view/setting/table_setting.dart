@@ -23,7 +23,7 @@ class _TableSettingState extends State<TableSetting> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: ColorStyles.secondary,
-      body: tables.isEmpty
+      body: tableViewModel.isLoading
           ? const Center(child: CircularProgressIndicator())
           : GridView.builder(
               padding: const EdgeInsets.only(right: 20.0),

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:pbl3_restaurant/widgets/my_text_field.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +21,7 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPageState extends State<PaymentPage> {
+  TextEditingController money = TextEditingController();
   @override
   Widget build(BuildContext context) {
     var vm = Provider.of<MenuPageViewModel>(context);
@@ -74,7 +77,7 @@ class _PaymentPageState extends State<PaymentPage> {
                       ],
                     ),
                     SizedBox(height: 10),
-                    vm.isMoney ? moneyMethod() : transferMethod(),
+                    vm.isMoney ? moneyMethod() : transferMethod(billVm),
                   ],
                 ),
               ),
@@ -83,13 +86,13 @@ class _PaymentPageState extends State<PaymentPage> {
                       onPressed: () async {
                         bool isSuccess = false;
                         if (vm.isMoney) {
-                          isSuccess = await billVm.checkout(1);
+                          isSuccess =
+                              await billVm.checkout(1, int.parse(money.text));
                         } else {
-                          isSuccess = await billVm.checkout(2);
+                          // Từ từ làm
                         }
                         if (isSuccess) {
-                          tableVm.tables[billVm.tableId].statusName =
-                              "Còn trống";
+                          tableVm.fetchTables();
                           await showSuccessDialog(context);
                           vm.updateIsPaid();
                           Navigator.pushNamed(context, '/table_page');
@@ -119,12 +122,19 @@ class _PaymentPageState extends State<PaymentPage> {
         Text('Số tiền khách gửi: ', style: TextStyles.subscription),
         SizedBox(height: 10),
         MyTextField(
-            hintText: 'Nhập số tiền', controller: TextEditingController()),
+          hintText: 'Nhập số tiền',
+          controller: money,
+        ),
       ],
     );
   }
 
-  Widget transferMethod() {
+  Widget transferMethod(BillViewModel billVm) {
+    final qrString = billVm.qr?.qr ?? "";
+    final commaIndex = qrString.indexOf(',');
+    final base64Part =
+        commaIndex != -1 ? qrString.substring(commaIndex + 1) : qrString;
+    final bytes = base64Decode(base64Part);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -145,10 +155,15 @@ class _PaymentPageState extends State<PaymentPage> {
                 borderRadius: BorderRadius.circular(5),
               ),
               child: Center(
-                child: Text(
-                  'QR Code',
-                  style: TextStyles.title.bold,
-                ),
+                child: (billVm.qr != null)
+                    ? Image.memory(
+                        bytes,
+                        fit: BoxFit.contain,
+                      )
+                    : Text(
+                        'QR Code',
+                        style: TextStyles.title.bold,
+                      ),
               ),
             ),
           ),

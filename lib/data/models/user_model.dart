@@ -1,3 +1,22 @@
+enum Role {
+  admin(id: 1, name: 'Quản lý tổng'),
+  manager(id: 2, name: 'Quản lý chi nhánh'),
+  employee(id: 3, name: 'Nhân viên');
+
+  final int id;
+  final String name;
+  const Role({required this.id, required this.name});
+}
+
+enum Gender {
+  male(id: 1, name: 'Nam'),
+  female(id: 2, name: 'Nữ');
+
+  final int id;
+  final String name;
+  const Gender({required this.id, required this.name});
+}
+
 class UserModel {
   final String fullName;
   final String phoneNumber;

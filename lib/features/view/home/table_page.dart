@@ -5,9 +5,14 @@ import 'package:pbl3_restaurant/features/viewmodel/table_page_view_model.dart';
 import 'package:pbl3_restaurant/widgets/hello_user.dart';
 import 'package:pbl3_restaurant/widgets/table_widget.dart';
 
-class TablePage extends StatelessWidget {
+class TablePage extends StatefulWidget {
   const TablePage({super.key});
 
+  @override
+  State<TablePage> createState() => _TablePageState();
+}
+
+class _TablePageState extends State<TablePage> {
   @override
   Widget build(BuildContext context) {
     final tableViewModel = context.watch<TablePageViewModel>();
@@ -23,7 +28,7 @@ class TablePage extends StatelessWidget {
           child: Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-            child: tables.isEmpty
+            child: tableViewModel.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : GridView.builder(
                     itemCount: tables.length,

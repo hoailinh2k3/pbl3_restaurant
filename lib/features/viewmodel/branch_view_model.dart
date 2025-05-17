@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:pbl3_restaurant/core/helpers/get_token.dart';
 
 import '../../data/models/branch_model.dart';
 import '../../data/repositories/branch_service.dart';
@@ -22,7 +23,8 @@ class BranchViewModel extends ChangeNotifier {
 
   Future<void> fetchBranches() async {
     try {
-      _branches = await _service.fetchBranches();
+      String token = await getToken();
+      _branches = await _service.fetchBranches(token);
     } catch (e) {
       print("Error fetching branches: $e");
     }
@@ -30,7 +32,8 @@ class BranchViewModel extends ChangeNotifier {
 
   Future<void> addBranch(BranchModel branch) async {
     try {
-      await _service.addBranch(branch);
+      String token = await getToken();
+      await _service.addBranch(branch, token);
       _branches.add(branch);
     } catch (e) {
       print("Error adding branch: $e");
@@ -39,22 +42,28 @@ class BranchViewModel extends ChangeNotifier {
 
   Future<void> updateBranch(BranchModel branch) async {
     try {
-      await _service.updateBranch(branch);
+      String token = await getToken();
+      await _service.updateBranch(branch, token);
       int index = _branches.indexWhere((b) => b.branchId == branch.branchId);
       if (index != -1) {
         _branches[index] = branch;
       }
     } catch (e) {
       print("Error updating branch: $e");
+    } finally {
+      notifyListeners();
     }
   }
 
   Future<void> deleteBranch(int id) async {
     try {
-      await _service.deleteBranch(id);
+      String token = await getToken();
+      await _service.deleteBranch(id, token);
       _branches.removeWhere((branch) => branch.branchId == id);
     } catch (e) {
       print("Error deleting branch: $e");
+    } finally {
+      notifyListeners();
     }
   }
 }
